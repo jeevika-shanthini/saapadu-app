@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saapadu – Food delivery: ordering, ETA, OTP & analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3ef;--card:#fff;--ink:#10231f;--mute:#5b6f68;--line:#d9e3dd;--leaf:#1f7a5a;--sun:#f5a623;--chili:#d8432e;--soft:#e2efe8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1a17;--card:#152722;--ink:#eaf3ee;--mute:#93aba2;--line:#254039;--soft:#1b3a31}}
+:root[data-theme="dark"]{--bg:#0d1a17;--card:#152722;--ink:#eaf3ee;--mute:#93aba2;--line:#254039;--soft:#1b3a31}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.45}
+button,input,select{font-family:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.02em}.logo span{color:var(--leaf)}.sp{flex:1}
+.ib{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:8px 12px;font-weight:600;font-size:14px;cursor:pointer;position:relative;transition:.15s}.ib:hover{background:var(--soft)}
+.badge{position:absolute;top:-6px;right:-6px;background:var(--chili);color:#fff;border-radius:999px;font-size:11px;min-width:18px;height:18px;display:grid;place-items:center}
+.seg{display:flex;background:var(--soft);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:999px;font-weight:600;font-size:14px;cursor:pointer;color:var(--mute)}.seg button.on{background:var(--ink);color:var(--bg)}
+.sim{background:var(--soft);padding:8px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:14px}
+select,.field{font-size:14px;font-weight:600;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
+.wrap{max-width:1040px;margin:0 auto;padding:16px 16px 60px}
+.hero{background:var(--leaf);color:#fff;border-radius:22px;padding:24px;display:grid;gap:12px}.hero h1{margin:0;font-size:clamp(26px,5vw,40px);letter-spacing:-.03em;line-height:1.05}
+.search{display:flex;background:#fff;border-radius:14px;padding:4px 12px;align-items:center;gap:8px}.search input{flex:1;border:0;background:none;font-size:16px;padding:10px 0;color:#10231f}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:14px 0 6px}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font-weight:600;cursor:pointer;transition:.15s}.chip:hover{transform:translateY(-2px)}.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.offer{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--sun);color:#2b1b00;border-radius:18px;padding:16px 20px;margin:12px 0}.offer b{font-size:20px}
+.btn{border:0;border-radius:12px;padding:11px 18px;font-weight:700;font-size:15px;cursor:pointer;background:var(--leaf);color:#fff}.btn.dk{background:#10231f}.btn:disabled{opacity:.4;cursor:not-allowed}
+.list{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));margin-top:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.rc{transition:.2s}.rc:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(0,0,0,.1)}
+.pic{height:96px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:52px;position:relative;margin-bottom:10px}
+.fav{position:absolute;top:6px;right:6px;border:0;background:var(--card);border-radius:50%;width:34px;height:34px;cursor:pointer}
+.meta{display:flex;gap:10px;font-size:14px;color:var(--mute);flex-wrap:wrap}
+.dish{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:14px}
+.add{border:1px solid var(--leaf);color:var(--leaf);background:none;border-radius:8px;padding:4px 12px;font-weight:700;cursor:pointer}.add:hover{background:var(--leaf);color:#fff}
+.mute{color:var(--mute);font-size:14px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:.2s;z-index:40}.ov.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);background:var(--card);z-index:50;transform:translateX(100%);transition:.25s;display:flex;flex-direction:column;padding:18px}.drawer.on{transform:none}
+.ci{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.qty{display:flex;align-items:center;gap:8px}.qty button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--soft);cursor:pointer;font-weight:800}
+.tot{display:flex;justify-content:space-between;padding:4px 0}.tot.g{font-weight:800;font-size:18px}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-46%) scale(.96);width:min(480px,94vw);max-height:86vh;overflow:auto;background:var(--card);border-radius:20px;padding:20px;z-index:60;opacity:0;pointer-events:none;transition:.2s}.modal.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600;background:var(--soft);color:var(--leaf)}.pill.w{background:#fdebd0;color:#8a5a00}
+.otp{display:inline-flex;gap:4px}.otp b{background:var(--ink);color:var(--bg);padding:2px 10px;border-radius:6px;font-size:22px;letter-spacing:2px}
+.steps{list-style:none;margin:10px 0;padding:0;display:grid;gap:6px}.steps li{color:var(--mute);font-size:14px;display:flex;gap:8px;align-items:center}
+.steps i{width:12px;height:12px;border-radius:50%;border:2px solid var(--line)}.steps .done{color:var(--ink)}.steps .done i{background:var(--leaf);border-color:var(--leaf)}.steps .now i{background:var(--sun);border-color:var(--sun);box-shadow:0 0 0 4px rgba(245,166,35,.25)}
+.bar{height:28px;background:var(--soft);border-radius:999px;position:relative;margin:10px 0}.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--leaf);border-radius:999px;transition:width .5s}.bar span{position:absolute;top:1px;font-size:20px;transform:translateX(-50%);transition:left .5s}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}.grid3 div{background:var(--soft);border-radius:12px;padding:8px;text-align:center}.grid3 b{display:block;font-size:20px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;opacity:0;transition:.25s;pointer-events:none;font-weight:600;z-index:80}.toast.show{opacity:1;transform:translate(-50%,0)}
+.otpin{display:flex;gap:8px;margin:12px 0}.otpin input{width:56px;height:64px;text-align:center;font-size:28px;font-weight:800;border:2px solid var(--line);border-radius:12px;background:var(--card)}
+.bad input{border-color:var(--chili);animation:sh .3s}@keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.adm{display:grid;grid-template-columns:190px 1fr;gap:16px}
+.side{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:2px;align-self:start}
+.side button{text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;font-weight:600;cursor:pointer;color:var(--mute)}.side button.on{background:var(--ink);color:var(--bg)}
+.kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:12px 0}.kpi b{display:block;font-size:28px;letter-spacing:-.03em}
+table{width:100%;border-collapse:collapse}td{padding:9px 4px;border-bottom:1px solid var(--line)}td:last-child{text-align:right;font-weight:800}
+.alert{background:#fdebd0;color:#6b4300;border-radius:14px;padding:12px 16px;margin-top:14px;font-weight:600}
+@media(max-width:760px){.adm{grid-template-columns:1fr}.side{flex-direction:row;overflow-x:auto}.side button{white-space:nowrap}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="top">
+ <div class="logo">saapadu<span>.</span></div>
+ <div class="seg" id="mode"><button data-m="cust" class="on">Customer</button><button data-m="rider">Rider</button><button data-m="adm">Analytics</button></div>
+ <div class="sp"></div>
+ <button class="ib" id="bLoc">📍 <span id="locT">Avadi</span></button>
+ <button class="ib" id="bOrd">📦 My orders <span class="badge" id="ocnt" style="display:none">0</span></button>
+ <button class="ib" id="bAcc">👤 Account</button>
+ <button class="ib" id="bCart">🛒 Cart <span class="badge" id="cnt">0</span></button>
+</div>
+<div class="sim"><b>Demo controls</b>
+ <label>Traffic <select id="trf"><option value="light">Light</option><option value="normal" selected>Normal</option><option value="heavy">Heavy</option></select></label>
+ <label>Speed <select id="spd"><option value="1">×1 (1 min = 1 sec)</option><option value="3" selected>×3</option><option value="10">×10</option></select></label></div>
+<div class="wrap" id="root"></div>
+<div class="ov" id="ov"></div><aside class="drawer" id="drawer" aria-label="Cart"></aside><div class="modal" id="modal" role="dialog" aria-modal="true"></div><div class="toast" id="toast"></div>
+<script>
+const KM=3.6,SPD={light:28,normal:20,heavy:12};
+const R=[
+{n:'Anjappar Biryani',e:'🍛',c:'Biryani',r:4.6,t:28,f:30,p:16,d:[['Chicken biryani',249],['Mutton biryani',329]]},
+{n:'Pizza Corner',e:'🍕',c:'Pizza',r:4.2,t:22,f:40,p:14,d:[['Margherita',199],['Paneer tikka pizza',279]]},
+{n:'Burger Barn',e:'🍔',c:'Burgers',r:4.4,t:20,f:25,p:10,d:[['Classic burger',149],['Peri fries',99]]},
+{n:'Murugan Idli',e:'🥞',c:'South Indian',r:4.7,t:18,f:20,p:12,d:[['Idli set (4)',70],['Ghee podi dosa',110]]},
+{n:'Wok Express',e:'🍜',c:'Chinese',r:4.1,t:35,f:35,p:15,d:[['Veg hakka noodles',159],['Chilli chicken',219]]},
+{n:'Sweet Karma',e:'🍰',c:'Desserts',r:4.5,t:25,f:30,p:9,d:[['Gulab jamun (2)',80],['Brownie sundae',169]]},
+{n:'Bombay Rolls',e:'🌯',c:'Rolls',r:4.3,t:24,f:25,p:11,d:[['Egg roll',99],['Paneer kathi roll',129]]},
+{n:'Filter Kaapi Co.',e:'☕',c:'Beverages',r:4.8,t:15,f:15,p:6,d:[['Filter coffee',40],['Cold coffee',90]]}];
+const CATS=['All',...new Set(R.map(r=>r.c))],EM={All:'🍽️',Biryani:'🍛',Pizza:'🍕',Burgers:'🍔','South Indian':'🥞',Chinese:'🍜',Desserts:'🍰',Rolls:'🌯',Beverages:'☕'};
+const late=[[6,11],[9,5],[4,9],[7,7],[3,2],[8,8],[5,4],[2,3]];
+const series=Array.from({length:30},(_,i)=>Math.round(380+60*Math.sin(i/2.5)+(i%7>=5?70:0)+i*2));
+let H=[[22,24,1],[18,17,1],[26,33,2],[20,21,1],[24,23,1],[19,26,3],[21,20,1],[23,25,1]].map((a,i)=>({id:1041+i,pred:a[0],act:a[1],tries:a[2]}));
+let S={mode:'cust',cat:'All',flt:'all',q:'',fav:new Set(),cart:{},promo:false,loc:'Avadi, Chennai',orders:[],range:30,rev:0,side:'Analytics',traffic:'normal',speed:3,modal:null};
+const $=s=>document.querySelector(s),rs=n=>'₹'+n.toLocaleString('en-IN'),ride=()=>KM/SPD[S.traffic]*60;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),2400)}
+const STG=['Order placed','Restaurant is preparing your food','Picked up – rider on the way','Rider is nearby','Rider arrived – tell your OTP'];
+
+/* ---------- Order simulation ---------- */
+const eta=o=>o.done?0:o.t<o.prep?o.prep-o.t+ride():(1-o.p)*ride();
+const stage=o=>o.done?5:o.t<1?0:o.t<o.prep?1:o.p<.7?2:o.p<1?3:4;
+setInterval(()=>{S.orders.forEach(o=>{if(o.done||o.arrived)return;
+ const dt=S.speed;o.t+=dt;if(o.t>o.prep)o.p=Math.min(1,o.p+Math.min(dt,o.t-o.prep)/ride());
+ if(o.p>=1){o.arrived=true;toast('Order #'+o.id+': rider arrived – tell the OTP to the rider')}
+ const s=stage(o);if(s!==o.s){o.s=s;refresh();return}
+ live(o)})},1000);
+function live(o){const e=$('#e'+o.id),b=$('#b'+o.id),r=$('#r'+o.id);const n=Math.ceil(eta(o)),pc=Math.min(100,o.t/(o.prep+ride())*100);
+ if(e)e.textContent=n;if(b)b.style.width=pc+'%';if(r)r.style.left=pc+'%'}
+function refresh(){if(S.modal==='ord')open('ord');if(S.mode==='rider')rider();$('#ocnt').style.display=S.orders.some(o=>!o.done)?'grid':'none';$('#ocnt').textContent=S.orders.filter(o=>!o.done).length}
+
+/* ---------- Customer ---------- */
+function cust(){
+ $('#root').innerHTML=`<div class="hero"><h1>Hungry? Get it delivered hot.</h1><div style="color:#d5efe3">Delivering to ${S.loc}</div>
+ <label class="search">🔎<input id="q" placeholder="Search restaurants or dishes" value="${S.q}" aria-label="Search"></label></div>
+ <div class="chips" id="chips">${CATS.map(c=>`<button class="chip ${c===S.cat?'on':''}" data-c="${c}">${EM[c]} ${c}</button>`).join('')}</div>
+ <div class="offer"><div><b>🎁 Get 20% off your order</b><div>Up to ₹80. Use code SAAPADU20.</div></div><button class="btn dk" id="promo">${S.promo?'Applied ✓':'Apply offer'}</button></div>
+ <div class="chips" id="flt">${[['all','All'],['top','🔥 Top rated (4.5+)'],['fast','⚡ Fast (under 25 min)'],['fav','❤️ Favourites']].map(([k,l])=>`<button class="chip ${S.flt===k?'on':''}" data-f="${k}">${l}</button>`).join('')}</div>
+ <div class="list" id="list"></div>`;
+ $('#q').oninput=e=>{S.q=e.target.value;drawList()};
+ $('#chips').onclick=e=>{const b=e.target.closest('[data-c]');if(b){S.cat=b.dataset.c;cust()}};
+ $('#flt').onclick=e=>{const b=e.target.closest('[data-f]');if(b){S.flt=b.dataset.f;cust()}};
+ $('#promo').onclick=()=>{S.promo=!S.promo;toast(S.promo?'Offer SAAPADU20 applied':'Offer removed');cust();drawCart()};
+ drawList();
+}
+function drawList(){const q=S.q.toLowerCase();
+ const L=R.map((r,i)=>({...r,i})).filter(r=>(S.cat==='All'||r.c===S.cat)&&(!q||(r.n+r.c+r.d.map(x=>x[0]).join()).toLowerCase().includes(q))&&(S.flt==='all'||(S.flt==='top'&&r.r>=4.5)||(S.flt==='fast'&&r.t<25)||(S.flt==='fav'&&S.fav.has(r.i))));
+ $('#list').innerHTML=L.length?L.map(r=>`<div class="card rc"><div class="pic">${r.e}<button class="fav" data-fav="${r.i}" aria-label="Favourite">${S.fav.has(r.i)?'❤️':'🤍'}</button></div>
+ <b>${r.n}</b><div class="meta"><span>⭐ ${r.r}</span><span>🕒 ${r.t} min</span><span>🍳 prep ${r.p} min</span><span>🛵 ${rs(r.f)}</span></div>
+ ${r.d.map((d,k)=>`<div class="dish"><span>${d[0]} · ${rs(d[1])}</span><button class="add" data-add="${r.i}-${k}">Add</button></div>`).join('')}</div>`).join(''):'<div class="card">No matches. Try another search or clear the filters.</div>'}
+document.addEventListener('click',e=>{
+ const f=e.target.closest('[data-fav]');if(f){const i=+f.dataset.fav;S.fav.has(i)?S.fav.delete(i):S.fav.add(i);drawList();return}
+ const a=e.target.closest('[data-add]');if(a){const [r,i]=a.dataset.add.split('-'),d=R[r].d[i],k=a.dataset.add;S.cart[k]=S.cart[k]||{n:d[0],p:d[1],q:0,r:+r};S.cart[k].q++;drawCart();toast(d[0]+' added to cart');return}
+ const q=e.target.closest('[data-q]');if(q){const [k,d]=q.dataset.q.split(':');S.cart[k].q+=+d;if(S.cart[k].q<=0)delete S.cart[k];drawCart();return}
+ if(e.target.closest('[data-close]'))closeAll();
+ const l=e.target.closest('[data-loc]');if(l){S.loc=l.dataset.loc;$('#locT').textContent=S.loc.split(',')[0];closeAll();toast('Delivering to '+S.loc);if(S.mode==='cust')cust()}});
+
+/* ---------- Cart & order ---------- */
+function totals(){const it=Object.values(S.cart),sub=it.reduce((a,c)=>a+c.p*c.q,0),fee=sub?Math.max(...it.map(c=>R[c.r].f)):0,disc=S.promo?Math.min(80,Math.round(sub*.2)):0;return{sub,fee,disc,total:sub+fee-disc}}
+function drawCart(){const items=Object.entries(S.cart),t=totals();$('#cnt').textContent=items.reduce((a,[,c])=>a+c.q,0);
+ $('#drawer').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Your cart</h2><button class="ib" data-close>Close</button></div>
+ <div style="flex:1;overflow:auto">${items.length?items.map(([k,c])=>`<div class="ci"><div><b>${c.n}</b><div class="mute">${R[c.r].n} · ${rs(c.p)}</div></div><div class="qty"><button data-q="${k}:-1" aria-label="Less">−</button><b>${c.q}</b><button data-q="${k}:1" aria-label="More">+</button></div></div>`).join(''):'<p class="mute">Your cart is empty. Add a dish from any restaurant.</p>'}</div>
+ <div class="tot"><span>Subtotal</span><span>${rs(t.sub)}</span></div><div class="tot"><span>Delivery fee</span><span>${rs(t.fee)}</span></div>
+ ${t.disc?`<div class="tot" style="color:var(--leaf)"><span>Offer SAAPADU20</span><span>−${rs(t.disc)}</span></div>`:''}
+ <div class="tot g"><span>Total</span><span>${rs(t.total)}</span></div><button class="btn" id="pay" style="margin-top:10px" ${items.length?'':'disabled'}>Place order</button>`;
+ $('#pay').onclick=place}
+function place(){const t=totals(),it=Object.values(S.cart),ri=it.map(c=>c.r).sort((a,b)=>R[b].p-R[a].p)[0],prep=R[ri].p+Math.min(4,it.reduce((a,c)=>a+c.q,0)-1);
+ const o={id:1049+S.orders.length,items:it.map(c=>c.q+'× '+c.n).join(', '),total:t.total,rest:R[ri].n,prep,t:0,p:0,otp:String(1000+Math.floor(Math.random()*9000)),tries:0,arrived:false,done:false,s:0,placed:Date.now()};
+ o.eta0=Math.round(eta(o));S.orders.unshift(o);S.cart={};drawCart();closeAll();refresh();open('ord');toast('Order placed! '+o.rest+' is starting your food')}
+
+/* ---------- Popups ---------- */
+function orderCard(o){const s=stage(o),n=Math.ceil(eta(o)),rd=Math.round(ride()),pc=Math.min(100,o.t/(o.prep+ride())*100),clock=new Date(Date.now()+eta(o)*6e4/S.speed).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+ return `<div class="card" style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px"><b>Order #${o.id}</b><span class="pill ${o.done?'':'w'}">${o.done?'Delivered in '+o.act+' min':STG[s]}</span></div>
+ <div class="mute">🏪 ${o.rest}<br>${o.items} · ${rs(o.total)}</div>
+ <div class="grid3"><div><b>${o.prep}</b><span class="mute">Prep time (min)</span></div><div><b>${rd}</b><span class="mute">Ride time (min)</span></div><div><b id="e${o.id}">${o.done?0:n}</b><span class="mute">ETA left (min)</span></div></div>
+ ${o.done?'':`<div class="mute">Estimated arrival: <b>${clock}</b> (at placement: ${o.eta0} min)</div>`}
+ <div class="bar" aria-hidden="true"><i id="b${o.id}" style="width:${o.done?100:pc}%"></i><span id="r${o.id}" style="left:${o.done?100:pc}%">🛵</span></div>
+ <ul class="steps">${STG.map((x,i)=>`<li class="${o.done||i<s?'done':i===s?'now':''}"><i></i>${i===1?x+' · '+o.prep+' min':x}</li>`).join('')}</ul>
+ ${o.done?'<div class="pill">✓ OTP verified. Delivered</div>':s>=3?`<div>Your delivery OTP <span class="otp">${o.otp.split('').map(c=>`<b>${c}</b>`).join('')}</span></div><div class="mute">${s===4?'The rider will ask you for this code. Tell it to them to confirm delivery.':'Keep this ready. Tell it only to the rider at your door.'}</div>`:'<div class="mute">🔒 Your OTP unlocks when the rider is nearby.</div>'}</div>`}
+function open(k){const m=$('#modal');S.modal=k;
+ if(k==='cart'){$('#drawer').classList.add('on');$('#ov').classList.add('on');return}
+ m.innerHTML=k==='acc'?`<h2>My account</h2><p><b>Arun Kumar</b><br><span class="mute">arun@example.com · +91 98xxx xxx21</span></p><div class="ci"><span>Favourites</span><b>${S.fav.size}</b></div><div class="ci"><span>Orders placed</span><b>${S.orders.length}</b></div><button class="btn" data-close style="margin-top:12px">Done</button>`
+ :k==='loc'?`<h2>Choose delivery location</h2>${['Avadi, Chennai','Ambattur, Chennai','Poonamallee, Chennai','Anna Nagar, Chennai'].map(l=>`<button class="ib" data-loc="${l}" style="display:block;width:100%;text-align:left;margin:6px 0">${l===S.loc?'✅':'📍'} ${l}</button>`).join('')}`
+ :`<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">My orders</h2><button class="ib" data-close>Close</button></div>${S.orders.length?S.orders.map(orderCard).join(''):'<p class="mute">No orders yet. Add dishes to your cart and place an order.</p>'}`;
+ m.classList.add('on');$('#ov').classList.add('on')}
+function closeAll(){S.modal=null;['#drawer','#modal','#ov'].forEach(s=>$(s).classList.remove('on'))}
+$('#ov').onclick=closeAll;document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
+$('#bCart').onclick=()=>open('cart');$('#bAcc').onclick=()=>open('acc');$('#bLoc').onclick=()=>open('loc');$('#bOrd').onclick=()=>open('ord');
+$('#trf').onchange=e=>{S.traffic=e.target.value;toast('Traffic '+S.traffic+' – ETA recalculated')};$('#spd').onchange=e=>S.speed=+e.target.value;
+
+/* ---------- Rider ---------- */
+function rider(){const o=S.orders.find(x=>!x.done);
+ if(!o){$('#root').innerHTML=`<div class="card"><h2>Rider app</h2><p class="mute">No active delivery. Place an order in the Customer tab and it will appear here.</p></div>`;return}
+ const s=stage(o),prepLeft=Math.max(0,Math.ceil(o.prep-o.t));
+ $('#root').innerHTML=`<div class="card" style="max-width:560px"><h2 style="margin:0 0 4px">Delivery for order #${o.id}</h2><div class="mute">Pickup: 🏪 ${o.rest} · Drop: 14, Gandhi Nagar, ${S.loc.split(',')[0]}</div>
+ <div class="grid3"><div><b>${o.prep}</b><span class="mute">Restaurant prep (min)</span></div><div><b>${Math.round(ride())}</b><span class="mute">Ride time (min)</span></div><div><b id="e${o.id}">${Math.ceil(eta(o))}</b><span class="mute">ETA left (min)</span></div></div>
+ <div class="bar" aria-hidden="true"><i id="b${o.id}" style="width:${Math.min(100,o.t/(o.prep+ride())*100)}%"></i><span id="r${o.id}" style="left:${Math.min(100,o.t/(o.prep+ride())*100)}%">🛵</span></div>
+ <ul class="steps">${['1. Wait at the restaurant','2. Pick up the order and ride to the customer','3. Reach the drop point','4. Ask the customer for the OTP'].map((x,i)=>{const cur=s<2?0:s<4?1:3;return `<li class="${i<cur?'done':i===cur?'now':''}"><i></i>${x}${i===0&&s<2?' · food ready in '+prepLeft+' min':''}</li>`}).join('')}</ul>
+ ${o.arrived?`<h3 style="margin:12px 0 0">Ask the customer: "What is your OTP?"</h3><div class="otpin" id="oi">${[0,1,2,3].map(i=>`<input inputmode="numeric" maxlength="1" aria-label="OTP digit ${i+1}">`).join('')}</div>
+ <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" id="vf">Verify OTP & complete delivery</button><span class="mute" id="rm">Attempts used: ${o.tries}/3</span></div>`
+ :'<p class="mute">OTP entry unlocks when you reach the drop point.</p>'}</div>`;
+ const ins=[...document.querySelectorAll('#oi input')];if(!ins.length)return;
+ ins.forEach((el,i)=>{el.oninput=()=>{el.value=el.value.replace(/\D/g,'');if(el.value&&ins[i+1])ins[i+1].focus()};el.onkeydown=e=>{if(e.key==='Backspace'&&!el.value&&ins[i-1])ins[i-1].focus();if(e.key==='Enter')$('#vf').click()}});
+ ins[0].focus();
+ $('#vf').onclick=()=>{const c=ins.map(i=>i.value).join('');if(c.length<4){$('#rm').textContent='Enter all 4 digits.';return}
+  o.tries++;if(c===o.otp){o.done=true;o.act=Math.round(o.t);S.rev+=o.total;H.push({id:o.id,pred:o.eta0,act:o.act,tries:o.tries});toast('OTP verified ✓ Order #'+o.id+' delivered in '+o.act+' min');refresh()}
+  else{const b=$('#oi');b.classList.add('bad');ins.forEach(i=>i.value='');ins[0].focus();$('#rm').textContent=o.tries>=3?'3 wrong attempts. Order flagged – call the customer.':'Wrong OTP. Attempts used: '+o.tries+'/3'}}}
+
+/* ---------- Analytics ---------- */
+function adm(){
+ const d=series.slice(-S.range),mx=Math.max(...d)+20,mn=Math.min(...d)-20,W=600,Ht=170;
+ const P=d.map((v,i)=>[20+i*(W-40)/(d.length-1),Ht-20-(v-mn)/(mx-mn)*(Ht-40)]),ln=P.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');
+ const flag=late.map((l,i)=>({r:R[i],diff:l[0]-l[1]})).filter(x=>x.diff>=3).sort((a,b)=>b.diff-a.diff);
+ const h=H.slice(-8),n=h.length,mxb=Math.max(...h.flatMap(x=>[x.pred,x.act]))+4,bw=20;
+ const bars=h.map((x,i)=>{const px=30+i*(W-40)/n,y=v=>Ht-20-v/mxb*(Ht-40);return `<rect x="${px}" y="${y(x.pred)}" width="${bw}" height="${Ht-20-y(x.pred)}" rx="4" fill="var(--sun)"/><rect x="${px+bw+3}" y="${y(x.act)}" width="${bw}" height="${Ht-20-y(x.act)}" rx="4" fill="var(--leaf)"/><text x="${px+bw}" y="${Ht-5}" text-anchor="middle" font-size="10" fill="var(--mute)">#${x.id}</text>`}).join('');
+ const mae=H.reduce((a,x)=>a+Math.abs(x.act-x.pred),0)/H.length,first=H.filter(x=>x.tries===1).length/H.length*100,real=H.slice(8),avg=(34*12482+real.reduce((a,x)=>a+x.act,0))/(12482+real.length);
+ $('#root').innerHTML=`<div class="adm"><div class="side">${['Dashboard','Orders','Restaurants','Delivery','Customers','Analytics','Settings'].map(x=>`<button class="${x===S.side?'on':''}" data-s="${x}">${x}</button>`).join('')}</div>
+ <div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h2 style="margin:0">Performance overview</h2><select id="rng" aria-label="Range"><option value="7">Last 7 days</option><option value="14">Last 14 days</option><option value="30">Last 30 days</option></select></div>
+ <div class="kpis"><div class="card kpi"><span class="mute">Orders</span><b>${(12482+real.length).toLocaleString('en-IN')}</b></div><div class="card kpi"><span class="mute">Revenue</span><b>₹${((840000+S.rev*10)/1e5).toFixed(2)}L</b></div><div class="card kpi"><span class="mute">On-time</span><b>91.2%</b></div><div class="card kpi"><span class="mute">Rating</span><b>4.5 ★</b></div></div>
+ <div class="card"><b>Orders per day</b><svg viewBox="0 0 ${W} ${Ht}" style="width:100%" role="img" aria-label="Orders per day"><path d="${ln}L${P.at(-1)[0]} ${Ht-20}L20 ${Ht-20}Z" fill="var(--soft)"/><path d="${ln}" fill="none" stroke="var(--leaf)" stroke-width="3" stroke-linejoin="round"/></svg></div>
+ <div class="card" style="margin-top:12px"><b>Predicted ETA vs actual delivery time (min)</b> <span class="pill w">Predicted</span> <span class="pill">Actual</span><svg viewBox="0 0 ${W} ${Ht}" style="width:100%" role="img" aria-label="Predicted vs actual">${bars}</svg><div class="mute">New deliveries you complete in the Rider tab appear here.</div></div>
+ <div class="card" style="margin-top:12px"><b>Delivery performance</b><table>${[['Avg delivery time',avg.toFixed(1)+' min'],['ETA error (MAE)','±'+mae.toFixed(1)+' min'],['OTP first-try success',first.toFixed(0)+'%'],['Avg prep time','18 min'],['Late deliveries','8.8%'],['Cancellation rate','2.4%']].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table></div>
+ <div class="alert">⚠ ${flag.length} restaurants have rising late orders: ${flag.map(x=>`${x.r.n} (+${x.diff} pts)`).join(', ')}</div></div></div>`;
+ $('#rng').value=S.range;$('#rng').onchange=e=>{S.range=+e.target.value;adm()};
+ document.querySelector('.side').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;if(['Analytics','Dashboard'].includes(b.dataset.s)){S.side=b.dataset.s;adm()}else toast(b.dataset.s+' is not built in this prototype')}}
+
+function render(){document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===S.mode));({cust,rider,adm})[S.mode]()}
+$('#mode').onclick=e=>{const b=e.target.closest('[data-m]');if(b){S.mode=b.dataset.m;render()}};
+render();drawCart();
+</script>
+</body>
+</html>
